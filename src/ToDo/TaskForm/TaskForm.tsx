@@ -2,18 +2,62 @@ import { MessageBar, MessageBarType, PrimaryButton, Stack, TextField } from '@fl
 import React, { useContext, useEffect, useState } from 'react';
 import { useInput } from './useInput';
 import { TodoContext } from '../TodoProvider';
-import { ITask } from '../Type';
+import { ActionTypeEnum, ITask } from '../Type';
+import TodoString from "../String.json"
+type Props = {
+    editTaskId: string | null
+}
 
+const TaskForm = ({ editTaskId }: Props) => {
+    const { dispatch, activeTasks } = useContext(TodoContext)
+    const title = useInput("");
+    const description = useInput("");
 
-const TaskForm = () => {
-    const { dispatch } = useContext(TodoContext)
+    useEffect(() => {
+        if (editTaskId) {
+            const taskData = activeTasks.find(task => task.id === editTaskId);
+            title.set(taskData?.title || "");
+            description.set(taskData?.description || "");
+        }
+    }, [editTaskId]);
+
     const [showMessage, setShowMessage] = useState<{
         type: MessageBarType,
         message: string
     }>({ type: MessageBarType.success, message: "" });
 
-    const title = useInput("");
-    const description = useInput("");
+
+
+    const addTaskAction = () => {
+        const data: ITask = {
+            id: "",
+            title: title.value,
+            description: description.value,
+            isFavourite: false
+        };
+
+        dispatch({ type: ActionTypeEnum.Add, data: data });
+        setShowMessage({ type: MessageBarType.success, message: "Task Added" })
+    }
+    const updateTaskAction = () => {
+
+        const taskData = activeTasks.find(task => task.id === editTaskId);
+        if (taskData) {
+            const data: ITask = {
+                id: taskData.id,
+                title: title.value,
+                description: description.value,
+                isFavourite: false
+            };
+            dispatch({ type: ActionTypeEnum.Update, data: data })
+            setShowMessage({ type: MessageBarType.success, message: "Task Updated" })
+        } else {
+
+            
+        }
+        setShowMessage({ type: MessageBarType.error, message: "Error While Updating" })
+
+    }
 
     useEffect(() => {
         if (showMessage.message) {
@@ -26,15 +70,9 @@ const TaskForm = () => {
     const onFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        const data: ITask = {
-            id: "",
-            title: title.value,
-            description: description.value,
-            isFavourite: false
-        };
+        editTaskId ? updateTaskAction() : addTaskAction();
 
-        dispatch({ type: "add", data: data });
-        setShowMessage({ type: MessageBarType.success, message: "Task Added" })
+
     };
 
     return (
@@ -52,7 +90,7 @@ const TaskForm = () => {
                 </Stack>
 
                 <Stack style={{ width: "20%" }}>
-                    <PrimaryButton type="submit" text="Add Task" />
+                    <PrimaryButton type="submit" text={editTaskId ? TodoString.updtTaskBtn : TodoString.addTaskBtn} />
                 </Stack>
             </Stack>
         </form >

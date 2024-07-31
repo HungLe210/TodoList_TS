@@ -7,12 +7,20 @@ import TaskList from './List/TaskList';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import TodoProvider from './TodoProvider';
 import TaskForm from './TaskForm/TaskForm';
+import CompletedTaskList from './List/CompletedTaskList';
 initializeIcons();
 
 
 
 const Home = () => {
     const [selectedKey, setSelectedKey] = useState<string>(PivotKeyEnum.Tasks);
+    const [editTaskId, setEditTaskId] = useState<string | null>(null);
+
+    const editTask = (id: string) => {
+        setEditTaskId(id);
+        setSelectedKey(PivotKeyEnum.TaskForm)
+    }
+
     return (
         <Stack className={HomeStyle.todoContainer}>
             <TodoProvider>
@@ -24,6 +32,8 @@ const Home = () => {
                         selectedKey={String(selectedKey)}
                         styles={{ root: HomeStyle.pivotRoot }}
                         onLinkClick={(item?: PivotItem) => {
+                            if (item?.props.itemKey !== PivotKeyEnum.TaskForm)
+                                setEditTaskId(null)
                             setSelectedKey(item?.props.itemKey || PivotKeyEnum.Tasks)
                         }}
                     >
@@ -31,18 +41,18 @@ const Home = () => {
                             headerText={ToDoString.pivots.taskTab}
                             itemKey={PivotKeyEnum.Tasks}
                         >
-                            <TaskList />
+                            <TaskList setEditTask={editTask} />
                         </PivotItem>
                         <PivotItem
                             headerText={ToDoString.pivots.taskFormTab}
                             itemKey={PivotKeyEnum.TaskForm}
                         >
-                            <TaskForm />
+                            <TaskForm editTaskId={editTaskId} />
                         </PivotItem>
                         <PivotItem
                             headerText={ToDoString.pivots.completedTasks} itemKey={PivotKeyEnum.Completed}
                         >
-                            <Label>Pivot #3</Label>
+                            <CompletedTaskList />
                         </PivotItem>
                     </Pivot>
                 </Stack>

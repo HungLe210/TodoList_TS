@@ -5,5 +5,8 @@
         "taskTab": "Tasks",
         "taskFormTab": "Task Form",
         "completedTasks": "Completed"
-    }
+    },
+    "deleteConfirm": "Are you sure to delete this task?",
+    "addTaskBtn": "Add Task",
+    "updtTaskBtn": "Update Task"
 }
